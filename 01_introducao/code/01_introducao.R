@@ -126,8 +126,10 @@ lines(density(df[,3]))
 df = cars
 help(cars)
 colnames(df)
+head(df)
 plot(df$speed,df$dist,xlab ='Speed (mph) ',ylab='Distance to stop (ft)')
 reg = lm(dist~speed,data = df)
+reg
 abline(reg,col='blue')
 
 #boxplots
@@ -145,9 +147,10 @@ dim(bigdf)
 colnames(bigdf)
 
 road_cond_acc_sev = table(bigdf$Road_Surface_Conditions,bigdf$Accident_Severity)
+
 road_cond_acc_sev
 dat = as.data.frame(prop.table(road_cond_acc_sev,margin = 1)[2:6,])
-
+dat
 
 library(ggplot2)
 ggplot(dat, aes(x=Var1,y=Freq,fill=Var2)) + 
@@ -167,3 +170,7 @@ as.data.frame(prop.table(speed_lim_acc_sev,margin = 1))
 
 
 
+
+#code, data etc
+
+#kaggle?
