@@ -88,11 +88,6 @@ df[1,]
 df[,2]
 df[,1]
 
-head(df)
-tail(df)
-dim(df)
-colnames(df)
-str(df)
 
 # Explorar conjunto de dados 
 iris
@@ -145,7 +140,7 @@ boxplot(iris[,c(1,2,3,4)],col=terrain.colors(4),main = 'Boxplot Iris')
 # 5. Big dataset -----
 #https://www.kaggle.com/tsiaras/uk-road-safety-accidents-and-vehicles
 t0 = Sys.time()
-bigdf = read.csv('~/data/fa084/01_introdução/data/Accident_Information.csv')
+bigdf = read.csv('~/data/Accident_Information.csv')
 t1 = Sys.time()
 t1-t0
 dim(bigdf)
@@ -154,43 +149,22 @@ colnames(bigdf)
 road_cond_acc_sev = table(bigdf$Road_Surface_Conditions,bigdf$Accident_Severity)
 
 road_cond_acc_sev
-prop_road_cond_acc_sev = prop.table(road_cond_acc_sev,margin = 1)[2:6,]
-
-dat = as.data.frame(prop_road_cond_acc_sev)
+dat = as.data.frame(prop.table(road_cond_acc_sev,margin = 1)[2:6,])
 dat
 
 library(ggplot2)
 ggplot(dat, aes(x=Var1,y=Freq,fill=Var2)) + 
-  geom_bar(stat='identity', position = 'dodge')
+  geom_bar(stat='identity', position = 'dodge', alpha = 2/3)
 
 ggplot(dat[dat$Var2!='Slight',], aes(x=Var1,y=Freq,fill=Var2)) + 
-  geom_bar(stat='identity', position = 'dodge')
+  geom_bar(stat='identity', position = 'dodge', alpha = 2/3)
 
 speed_lim_acc_sev = table(bigdf$Speed_limit,bigdf$Accident_Severity)
 speed_lim_acc_sev
-dat = as.data.frame(prop.table(speed_lim_acc_sev,margin = 1))
-
-library(ggplot2)
-ggplot(dat, aes(x=Var1,y=Freq,fill=Var2)) + 
-  geom_bar(stat='identity', position = 'dodge')
-
-ggplot(dat[dat$Var2!='Slight',], aes(x=Var1,y=Freq,fill=Var2)) + 
-  geom_bar(stat='identity', position = 'dodge')
-
-speed_lim_acc_sev = table(bigdf$Speed_limit,bigdf$Accident_Severity)
-speed_lim_acc_sev
-dat = as.data.frame(prop.table(speed_lim_acc_sev,margin = 1))
-
-ggplot(dat, aes(x=Var1,y=Freq,fill=Var2)) + 
-  geom_bar(stat='identity', position = 'dodge')
-
-ggplot(dat[dat$Var2!='Slight',], aes(x=Var1,y=Freq,fill=Var2)) + 
-  geom_bar(stat='identity', position = 'dodge')
+as.data.frame(prop.table(speed_lim_acc_sev,margin = 1))
 
 
 
-
-#write.csv(dat,'./dat.csv')
 
 # 6. Estrutura de diretórios -----
 # caminho absoluto e caminho relativo
