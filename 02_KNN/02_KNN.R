@@ -9,14 +9,25 @@ head(test)
 dim(train)
 dim(test)
 
-acc = numeric()
 
 tr = train[,c('XCoord','YCoord')]
 tst = test[,c('XCoord','YCoord')]
 trlab = train$Competitor
 
-k=1
-for (k in seq(1,100,10)){
+
+dim(test)
+?knn
+
+ggplot(train, aes(x=XCoord, y=YCoord, color=Competitor))+
+  geom_point(size=5) + 
+  theme_classic()
+ggplot(train, aes(x=XCoord, y=YCoord, color=Competitor))+
+  geom_point(size=5) +
+  geom_point(data=test,color='black',size = 5,shape='*',stroke=5)+
+  theme_classic()
+
+acc = numeric()
+for (k in c(1,3,5,7,15)){
   preds = knn(train[,c('XCoord','YCoord')],
               test[,c('XCoord','YCoord')],
               cl = train$Competitor,
@@ -26,19 +37,19 @@ for (k in seq(1,100,10)){
 }
 acc
 
-dim(test)
-?knn
 
-ggplot(train, aes(x=XCoord, y=YCoord, color=Competitor))+
+ggplot(test, aes(x=XCoord, y=YCoord, color=''))+
   geom_point(size=5) + 
   theme_classic()
+
+
 
 
 dpred = tst
 final_preds = knn(tr,
                   tst,
                   cl = train$Competitor,
-                  k = 3,prob = TRUE)
+                  k = 10,prob = TRUE)
 #final_preds=as.character(final_preds)
 #final_preds = paste(final_preds,'model',sep='_')
 final_preds
@@ -46,17 +57,17 @@ prob = attr(final_preds,'prob')
 sum(final_preds == test$Competitor)/nrow(tst)
 dpred$Correto = ifelse(final_preds==test$Competitor,TRUE,FALSE)
 
-dpred$Competidor = as.character(final_preds)
+dpred$Competitor = as.character(final_preds)
 dpred
 dpred$Real = ''
 dpred$Real[!dpred$Correto]=as.character(test$Competitor)[!dpred$Correto]
 dpred
 
 
-ggplot(dpred, aes(x=XCoord, y=YCoord, color=Competidor,shape=Correto))+
+ggplot(dpred, aes(x=XCoord, y=YCoord, colour=Competitor,shape=Correto,label=Real))+
   scale_shape_manual(values=c(4,1))+
   geom_point(lwd=2,stroke=3) +
-  geom_text(label=dpred$Real,nudge_y=0.08)+
+  geom_text(nudge_y=0.08)+
   theme_classic() 
 
 
