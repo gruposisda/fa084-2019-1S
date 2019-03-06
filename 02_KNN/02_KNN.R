@@ -19,13 +19,6 @@ head(dat)
 
 sample(x = 200,size = 20,replace = F)
 
-set.seed(2)
-
-
-tr = train[,c('XCoord','YCoord')]
-tst = test[,c('XCoord','YCoord')]
-trlab = train$Competitor
-
 # 1.2 Dividir em treino e teste
 set.seed(2)
 rows_train=sample(x = nrow(dat), size = round(0.8*nrow(dat)), replace = F)
@@ -82,15 +75,21 @@ sum(mk3 == tst_label)/length(tst_label)
 
 #Loop para encontrar o melhor K
 acc = numeric()
-for (k in c(1,3,5,7,15)){
+ks = c(1,3,5,7,15)
+for (k in ks){
+  print(paste('k é',k))
   preds = knn(tr_xy,
               tst_xy,
               cl = tr_label,
               k = k)
+  
   acc_k = sum(preds == test$Competitor)/dim(test)[1]
+  acc_k = round(acc_k,2  )
+  print(paste('acc é', acc_k))
   acc = c(acc,acc_k)
 }
-acc
+classif_results = data.frame(k = ks, acc = acc)
+classif_results
 
 #Visualizacao dos resultados
 
@@ -118,105 +117,80 @@ ggplot(test, aes(x=XCoord, y=YCoord, colour=Competitor,shape=correto,label=pred_
 
 
 # 3.Regressão com KNN ----
-#Predicoes com K = 2
-#Qualidade do modelo: RMSE e MAE
-#Loop com varios K
-#Visualizacao dos resultdados
+#Visualização do algoritmo
+df = datasets::ChickWeight
+df = df %>% group_by(Time) %>% summarise(weight = round(mean(weight)))
+colnames(df) = tolower(colnames(df))
+id_test = c(3,6,9,11)
+df_train = df[-id_test,]
+df_test = df[id_test,]
+mk2 = knn.reg(train = df_train$time,test = as.data.frame(df_test$time),y = df_train$weight,k=2)
+yk2 = mk2$pred
+mk3 = knn.reg(train = df_train$time,test = as.data.frame(df_test$time),y = df_train$weight,k=3)
+yk3 = mk3$pred
+reg_preds = data.frame(time_test = df_test$time, pred_weight2 = yk2, pred_weight3 = yk3)
+reg_preds
 
+mae2 = mean(abs(reg_preds$pred_weight2 - df_test$weight))
+mae3 = mean(abs(reg_preds$pred_weight3 - df_test$weight))
+mae2
+mae3
 
-
-
-
-# TESTES ------------------------------------------------------------------
-# regression
-library(FNN)
-aula_2 = read.csv("~/Downloads/fa084_aula2dados.csv",
-                  header = TRUE,
-                  sep = ",",
-                  row.names = 1)
-head(aula_2)
-tail(aula_2)
-summary(aula_2)
-
-
-#sample(c('cara','coroa'),1) 
-#grep('c',c('a','b','c')) #procura c dentro do conjunto e retorna a posi??o
-
-#criando os conjuntos de treino e teste
-set.seed(42)
-id_train = sample(nrow(aula_2),0.7*nrow(aula_2)) #seleciona aleatoriamente 70% das linhas
-aula_2_train = aula_2[id_train,] #dados limpos para treino (70%)
-aula_2_test = aula_2[-id_train,] # dados limpos para teste (30% restante)
-
-#comando executado para selecionar a posicao do atributo meta
-#busca a coluna "Y" em aula_2 e retorna, neste caso, a posi??o 6
-
-pos_label = grep("Y", colnames(aula_2))
-x_train = aula_2_train[,-pos_label]
-y_train = aula_2_train[,pos_label]
-x_test = aula_2_test[,-pos_label]
-y_test = aula_2_test[,pos_label]
-
-#cria modelo e testa no proprio conjunto de treino
-m1 = knn.reg(train = x_train,
-             y = y_train,
-             test = x_train,
-             k = 1)
-ypred1 = m1$pred
-
-m2 = knn.reg(train = x_train,
-             y = y_train,
-             test = x_test,
-             k = 1)
-ypred1 = m1$pred
-ypred2 = m2$pred
-
-plot(ypred1, y_train)
-plot(ypred2, y_test)
-
-
-
-
-dpred = tst
-
-final_preds = knn(tr,
-                  tst,
-                  cl = train$Competitor,
-                  k = 3,prob = TRUE)
-final_preds=as.character(final_preds)
-final_preds = paste(final_preds,'model',sep='_')
-final_preds
-prob = attr(final_preds,'prob')
-
-dpred$Competidor = as.character(final_preds)
-ggplot(dpred, aes(x=XCoord, y=YCoord, color=Competidor))+
-  geom_point(size=5) + 
+ggplot(df, aes(x = time, y= weight)) +
+  geom_point(size = 5)  +
+  geom_point(data = reg_preds, aes(x = time_test, y = pred_weight2, colour = 'K = 2'), size = 5) + 
+  geom_point(data = reg_preds, aes(x = time_test, y = pred_weight3, colour = 'K = 3'), size = 5) + 
   theme_classic()
 
-prob
-dpred$prob = prob
-head(dpred)
-ggplot(dpred, aes(x=XCoord, y=YCoord, z = prob, group=Competidor,color=Competidor))+
-  geom_contour(bins=2)
+
+#importar conjunto de dados
+dat = read.csv('data/regression_data.csv')
+dim(dat)
+str(dat)
+summary(dat)
+
+set.seed(2)
+rows_train=sample(x = nrow(dat), size = round(0.8*nrow(dat)), replace = F)
+train = dat[rows_train,]
+test = dat[-rows_train,]
+
+label_col = which(colnames(dat) == 'Y')
+tr_x = train[,-label_col]
+tr_label = train[,label_col]  
+tst_x = test[,-label_col]
+tst_label = test[,label_col] 
+
+head(tst_x)
+head(tst_label)
+
+#Loop com varios K
+k_candidate = c(1, seq(5,20, by = 5), seq(30, 70, by =10))
+
+#dataframe para avaliacao
+eval_knn = data.frame(k = k_candidate,
+                      mse_train = NA,
+                      mse_test = NA)
+eval_knn
 
 
-dpred$x = round(dpred$XCoord,10)
-dpred$y = round(dpred$YCoord,1)
+for (i in 1:nrow(eval_knn)){
+  m_train = knn.reg(train = tr_x,
+                   y = tr_label,
+                   test = tr_x,
+                   k = eval_knn$k[i])
+  m_test = knn.reg(train = tr_x,
+                   y = tr_label,
+                   test = tst_x,
+                   k = eval_knn$k[i])
+  # para atribuir valor ? coluna do dataframe (antes sem valor)
+  eval_knn$mse_train[i] = mean(abs(tr_label-m_train$pred))
+  eval_knn$mse_test[i] = mean(abs(tst_label-m_test$pred))
+  print(paste0('Avaliando K =', eval_knn$k[i]))
+}
+eval_knn
 
-ggplot(dpred,aes(x=x, y=y, color=Competidor,z=prob)) +
-  geom_contour()
-
-
-ggplot(diamonds, aes(carat)) +
-  geom_density2d()
-
-dpred
-
-head(dataf)
-
-ggplot(dataf) +
-  geom_contour(aes(x=x, y=y, z=prob_cls, group=cls, color=cls),
-               bins=2,
-               data=dataf) 
-
-dataf
+#Visualizacao dos resultdados
+plot(eval_knn$k, eval_knn$mse_test, type = 'b',
+     ylim = c(0,1.5), col = 'blue')
+lines(eval_knn$k, eval_knn$mse_train, type = 'b', 
+      col = 'red')
