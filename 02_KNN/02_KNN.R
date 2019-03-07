@@ -1,8 +1,6 @@
 # Recomendar: Help das funcoes sample() e seq() e como fazer loops em R
 
 # 0.Importar bibliotecas ----
-
-library(class)
 library(FNN)
 library(ggplot2)
 
@@ -25,24 +23,21 @@ rows_train=sample(x = nrow(dat), size = round(0.8*nrow(dat)), replace = F)
 train = dat[rows_train,]
 test = dat[-rows_train,]
 
-dim(train)
-dim(test)
+summary(train)
+summary(test)
 
-head(train)
-head(test)
-
-table(train$Competitor)
-table(test$Competitor)
 
 # 1.3 Visualização do problema
 
 ggplot(train, aes(x=XCoord, y=YCoord, color=Competitor))+
   geom_point(size=5) + 
+  coord_cartesian(xlim = c(-1,1), ylim = c(-1,1)) +
   theme_classic()
 
 ggplot(train, aes(x=XCoord, y=YCoord, color=Competitor))+
   geom_point(size=5) +
   geom_point(data=test,color='black',size = 7,shape='*',stroke=7)+
+  coord_cartesian(xlim = c(-1,1), ylim = c(-1,1)) +
   theme_classic()
 
 # 2.Classificacao com KNN ----
@@ -66,7 +61,11 @@ tst_label
 
 
 #Qualidade do modelo: Acurácia de classificacao
-mk1 == tst_label
+mk_test = knn(train = tr_xy,test = tr_xy,cl = tr_label,k = 1)
+mk_test = as.character(mk_test)
+mk_test
+sum(mk_test == tr_label)/length(tr_label)
+
 sum(mk1 == tst_label)
 length(tst_label)
 length(mk1)
@@ -75,23 +74,36 @@ sum(mk3 == tst_label)/length(tst_label)
 
 #Loop para encontrar o melhor K
 acc = numeric()
-ks = c(1,3,5,7,15)
+tr_acc = numeric()
+ks = c(1,3,5,7,15,21,25,27)
 for (k in ks){
   print(paste('k é',k))
+  tr_preds = knn(tr_xy,
+                 tr_xy,
+                 cl = tr_label,
+                 k = k)
+    
   preds = knn(tr_xy,
               tst_xy,
               cl = tr_label,
               k = k)
-  
+  tr_acc_k = sum(tr_preds == tr_label)/length(tr_label)
   acc_k = sum(preds == test$Competitor)/dim(test)[1]
   acc_k = round(acc_k,2  )
   print(paste('acc é', acc_k))
   acc = c(acc,acc_k)
+  tr_acc = c(tr_acc,tr_acc_k)
 }
-classif_results = data.frame(k = ks, acc = acc)
+
+classif_results = data.frame(k = ks, tr_acc,tst_acc = acc)
 classif_results
 
 #Visualizacao dos resultados
+plot(classif_results$k, classif_results$tr_acc, type = 'b',
+     ylim = c(0,1.5), col = 'blue')
+lines(classif_results$k, classif_results$tst_acc, type = 'b', 
+      col = 'red')
+
 
 final_preds = knn(tr_xy,
                   tst_xy,
@@ -108,35 +120,34 @@ test$pred_errado = ''
 test$pred_errado[!test$correto]=as.character(test$pred)[!test$correto]
 test
 
-
+test
 ggplot(test, aes(x=XCoord, y=YCoord, colour=Competitor,shape=correto,label=pred_errado))+
   scale_shape_manual(values=c(4,1))+
   geom_point(lwd=2,stroke=3)+
+  #geom_point(data=test,color='black',size = 7,shape='*',stroke=7)+
   geom_text(fontface = 'bold',size=7,nudge_x = 0.1)+ 
+  coord_cartesian(xlim = c(-1,1), ylim = c(-1,1)) +
   theme_classic()
 
-
 # 3.Regressão com KNN ----
-#Visualização do algoritmo
-df = datasets::ChickWeight
-df = df %>% group_by(Time) %>% summarise(weight = round(mean(weight)))
-colnames(df) = tolower(colnames(df))
+#Visualização
+df_chick = read.csv('data/chickweight.csv')
 id_test = c(3,6,9,11)
-df_train = df[-id_test,]
-df_test = df[id_test,]
-mk2 = knn.reg(train = df_train$time,test = as.data.frame(df_test$time),y = df_train$weight,k=2)
+df_chick_train = df_chick[-id_test,]
+df_chick_test = df_chick[id_test,]
+mk2 = knn.reg(train = df_chick_train$time,test = as.data.frame(df_chick_test$time),y = df_chick_train$weight,k=2)
 yk2 = mk2$pred
-mk3 = knn.reg(train = df_train$time,test = as.data.frame(df_test$time),y = df_train$weight,k=3)
+mk3 = knn.reg(train = df_chick_train$time,test = as.data.frame(df_chick_test$time),y = df_chick_train$weight,k=3)
 yk3 = mk3$pred
-reg_preds = data.frame(time_test = df_test$time, pred_weight2 = yk2, pred_weight3 = yk3)
+reg_preds = data.frame(time_test = df_chick_test$time, pred_weight2 = yk2, pred_weight3 = yk3)
 reg_preds
 
-mae2 = mean(abs(reg_preds$pred_weight2 - df_test$weight))
-mae3 = mean(abs(reg_preds$pred_weight3 - df_test$weight))
+mae2 = mean(abs(reg_preds$pred_weight2 - df_chick_test$weight))
+mae3 = mean(abs(reg_preds$pred_weight3 - df_chick_test$weight))
 mae2
 mae3
 
-ggplot(df, aes(x = time, y= weight)) +
+ggplot(df_chick, aes(x = time, y= weight)) +
   geom_point(size = 5)  +
   geom_point(data = reg_preds, aes(x = time_test, y = pred_weight2, colour = 'K = 2'), size = 5) + 
   geom_point(data = reg_preds, aes(x = time_test, y = pred_weight3, colour = 'K = 3'), size = 5) + 
@@ -188,7 +199,6 @@ for (i in 1:nrow(eval_knn)){
   print(paste0('Avaliando K =', eval_knn$k[i]))
 }
 eval_knn
-
 #Visualizacao dos resultdados
 plot(eval_knn$k, eval_knn$mse_test, type = 'b',
      ylim = c(0,1.5), col = 'blue')
