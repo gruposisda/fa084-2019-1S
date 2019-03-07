@@ -14,12 +14,14 @@ dim(dat)
 head(dat)
 
 #1.1 Comando sample
-
+?sample
+set.seed(10)
 sample(x = 200,size = 20,replace = F)
 
 # 1.2 Dividir em treino e teste
 set.seed(2)
-rows_train=sample(x = nrow(dat), size = round(0.8*nrow(dat)), replace = F)
+nrow(dat)
+rows_train=sample(x = nrow(dat), size = ceiling(0.8*nrow(dat)))
 train = dat[rows_train,]
 test = dat[-rows_train,]
 
@@ -36,16 +38,16 @@ ggplot(train, aes(x=XCoord, y=YCoord, color=Competitor))+
 
 ggplot(train, aes(x=XCoord, y=YCoord, color=Competitor))+
   geom_point(size=5) +
-  geom_point(data=test,color='black',size = 7,shape='*',stroke=7)+
+  geom_point(data=test,size = 7,shape='*',stroke=7)+
   coord_cartesian(xlim = c(-1,1), ylim = c(-1,1)) +
   theme_classic()
 
 # 2.Classificacao com KNN ----
-
+?knn
 tr_xy = train[,c('XCoord','YCoord')]
-tr_label = as.character(train$Competitor)  
+tr_label = train$Competitor  
 tst_xy = test[,c('XCoord','YCoord')]
-tst_label = as.character(test$Competitor)  
+tst_label = test$Competitor
 
 #Predicoes com k=1, k=3, etc.
 mk1 = knn(train = tr_xy,test = tst_xy,cl = tr_label,k = 1)
