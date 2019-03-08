@@ -5,13 +5,13 @@ library(FNN)
 library(ggplot2)
 
 # 1.Importar dataset, dividir em treino e teste ----
-
 setwd('~/data/fa084/02_KNN/')
 dat = read.csv('data/dart_throws.csv')
 str(dat)
+head(dat)
 summary(dat)
 dim(dat)
-head(dat)
+
 
 #1.1 Comando sample
 ?sample
@@ -38,11 +38,12 @@ ggplot(train, aes(x=XCoord, y=YCoord, color=Competitor))+
 
 ggplot(train, aes(x=XCoord, y=YCoord, color=Competitor))+
   geom_point(size=5) +
-  geom_point(data=test,size = 7,shape='*',stroke=7)+
+  geom_point(data=test,color='black',size = 7,shape='*',stroke=7)+
   coord_cartesian(xlim = c(-1,1), ylim = c(-1,1)) +
   theme_classic()
 
 # 2.Classificacao com KNN ----
+#falar que pode mudar em funcao do algoritmo
 ?knn
 tr_xy = train[,c('XCoord','YCoord')]
 tr_label = train$Competitor  
@@ -63,16 +64,17 @@ tst_label
 
 
 #Qualidade do modelo: Acurácia de classificacao
-mk_test = knn(train = tr_xy,test = tr_xy,cl = tr_label,k = 1)
-mk_test = as.character(mk_test)
-mk_test
-sum(mk_test == tr_label)/length(tr_label)
-
 sum(mk1 == tst_label)
 length(tst_label)
 length(mk1)
 sum(mk1 == tst_label)/length(tst_label)
 sum(mk3 == tst_label)/length(tst_label)
+
+mk_test = knn(train = tr_xy,test = tr_xy,cl = tr_label,k = 1)
+mk_test = as.character(mk_test)
+mk_test
+sum(mk_test == tr_label)/length(tr_label)
+
 
 #Loop para encontrar o melhor K
 acc = numeric()
@@ -91,8 +93,8 @@ for (k in ks){
               k = k)
   tr_acc_k = sum(tr_preds == tr_label)/length(tr_label)
   acc_k = sum(preds == test$Competitor)/dim(test)[1]
-  acc_k = round(acc_k,2  )
-  print(paste('acc é', acc_k))
+  acc_k = round(acc_k,2)
+  #print(paste('acc é', acc_k))
   acc = c(acc,acc_k)
   tr_acc = c(tr_acc,tr_acc_k)
 }
@@ -113,16 +115,13 @@ final_preds = knn(tr_xy,
                   k = 3)
 final_preds = as.character(final_preds)
 
-test
 test$pred = ''
 test$pred = final_preds
 sum(test$pred==test$Competitor)
 test$correto = ifelse(test$pred==test$Competitor,TRUE,FALSE)
 test$pred_errado = ''
 test$pred_errado[!test$correto]=as.character(test$pred)[!test$correto]
-test
 
-test
 ggplot(test, aes(x=XCoord, y=YCoord, colour=Competitor,shape=correto,label=pred_errado))+
   scale_shape_manual(values=c(4,1))+
   geom_point(lwd=2,stroke=3)+
@@ -157,6 +156,7 @@ ggplot(df_chick, aes(x = time, y= weight)) +
 
 
 #importar conjunto de dados
+
 dat = read.csv('data/regression_data.csv')
 dim(dat)
 str(dat)
@@ -166,8 +166,9 @@ set.seed(2)
 rows_train=sample(x = nrow(dat), size = round(0.8*nrow(dat)), replace = F)
 train = dat[rows_train,]
 test = dat[-rows_train,]
+head(dat)
 
-label_col = which(colnames(dat) == 'Y')
+label_col = 6 #which(colnames(dat) == 'Y')
 tr_x = train[,-label_col]
 tr_label = train[,label_col]  
 tst_x = test[,-label_col]
@@ -178,7 +179,7 @@ head(tst_label)
 
 #Loop com varios K
 k_candidate = c(1, seq(5,20, by = 5), seq(30, 70, by =10))
-
+k_candidate
 #dataframe para avaliacao
 eval_knn = data.frame(k = k_candidate,
                       mse_train = NA,
