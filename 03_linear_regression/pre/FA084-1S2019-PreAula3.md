@@ -1,46 +1,32 @@
-# FA084 / AP522 – Atividade Pré-Aula 2
+# FA084 / AP522 – Atividade Pré-Aula 3
 
-O conjunto de dados ‘fa084_cana_estagio.csv’ contém a produtividade de diferentes talhões (uma divisão de área, um “campo”) de produção de cana-de-açúcar e o número de vezes que estes talhões foram colhidos.
-A produtividade corresponde a coluna TCH (Toneladas de Cana-de-açúcar por Hectare) e o número de cortes corresponde a coluna Estágio.
-Após carregar o conjunto de dados:
-
-* Faça a divisão em conjunto de treino (75%) e teste (25%).
-**Utilize o seu RA como seed** para garantir consistência entre splits.
-Use o mesmo procedimento visto em sala na aula 02.
-* Crie uma rotina para avaliar o uso de modelos lineares (de ordem 1 a 5, seção 3.6.5 do livro texto) para prever a produtividade em função do estágio (TCH~Estagio).
-**Dica:** um modelo de primeira ordem um pode utilizar “TCH ~ poly(Estagio, 1)”, o modelo de quinta ordem utiliza “TCH ~ poly(Estagio, 5)”: ver exemplo na pag 117.
+O conjunto de dados ‘fa084_cana_estagio.csv’ contém a produtividade de diferentes talhões (uma divisão de área, um “campo”) de produção de cana-de-açúcar e o número de vezes que estes talhões foram colhidos. A produtividade corresponde a coluna TCH (Toneladas de Cana-de-açúcar por Hectare) e o número de cortes corresponde a coluna Estágio.
 
 
-O arquivo fa084_aula3_funcoes.R, contém duas funções:
+### Atividade
 
-* `adjr2`: esta função calcula o R² ajustado para modelos com multiplas entradas.
-Você deve utilizar como adjr2(ypred, yobs, n, p
-  * `ypred` : Valores preditos (preditos no conjunto de treino)
-  * `yobs`  : Valores observados (valores de TCH no conjunto de treino)
-  * `n` = número de linhas no conjunto de treino
-  * `p` = grau do polinômio utilizado
+Preencha o script base com a rotina abaixo:
 
-* `calc_mae`: você deve completar a função que calcula o erro médio absoluto visto na Aula 02.
+1. Use `set.seed(RA)`. Basta substituir o RA do script pelo seu.
+2. Carregue o conjunto de dados.
+3. Faça a divisão em conjunto de treino (75%) e teste (25%).
+   Use o mesmo procedimento visto em sala na aula 02.
+4. Faça o sample de um número entre 1,2,3. Coloque na variável `a`.
+5. Faça o sample de um número entre 4 ou 5. Coloque na variável `b`.
+6. Treine dois modelos usando o conjunto de treino, um com grau `a` e outro com grau `b`.
+7. Teste as predições dos dois modelos no conjunto de teste.
+8. Calcule o `mean absolute error` (MAE) de cada  modelo.
 
-Calcule o MAE para o conjunto de treino e de teste.
-
-Apresente seus resultados utilizando uma tabela organizada como abaixo:
-
-```
-ordem mae_treino  mae_teste   rsqr   
-1         x1          y1      r1
-2   	  x2          y2      r2
-.          .           .       .
-.          .           .       .
-5         x5          y5      r5
-
-```
-
+OBS: Não altere as posições de cada `set.seed()`. SEMPRE execute o `set.seed()` imediatamente antes de uma chamada da função `sample()`.
 
 1. Qual modelo apresenta melhor resultado de acordo com o MAE? Justifique.
 
-2. Qual modelo apresenta o melhor resultado de acordo com o R2? Justifique.
+2. Construa um gráfico de TCH vs Estagio. É possível identificar o tipo de relação entre as variáveis? Você considera que os modelos escolhidos em A e B são adequados para representar a relação entre TCH e Estagio?
 
-3. Construa um gráfico de TCH vs Estagio. É possível identificar o tipo de relação entre as variáveis? Você considera que os modelos escolhidos em A e B são adequados para representar a relação entre TCH e Estagio?
 
-Apresente suas respostas em um arquivo pdf com o nome fa084_atividade3_RA_primeironome.pdf.
+## Entrega:
+
+Um arquivo `.zip` com o nome: `pre_aula03_RA_primeironome.zip`, com:
+
+* Um arquivo pdf com o nome `fa084_preaula03_RA_primeironome.pdf`
+* O scrip preenchido com o nome `fa084_preaula03_RA_primeironome.R`
