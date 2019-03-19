@@ -4,27 +4,30 @@ RA=123456
 library(dplyr)
 
 df = read.csv('~/repos/fa084/03_linear_regression/pre/data/fa084_cana_estagio.csv')
-df = df %>% group_by(Estagio) %>% summarise(TCH = mean(TCH)) 
+df = df %>% group_by(Estagio) %>% summarise(TCH = mean(TCH))
+df = group_by(df,Estagio)
+summarise(df,TCH=mean(TCH))
+
 #divida em treino e teste:
 set.seed(RA)
 rows_train = sample(nrow(df), 0.75*nrow(df))
-train = df#[rows_train,]
+train = df[rows_train,]
 test = df[-rows_train,]
 
 #Crie as variaveis a e b, que representam o grau do polinomio a ser treinado em cada caso
 set.seed(RA)
 #Substitua essa linha pelo sample que cria a variavel a
-a = sample(c(1,2,3),1)
+a = sample(1:3,1)
 set.seed(RA)
 b = sample(c(4,5),1)
 #Substitua essa linha pelo sample que cria a variavel b
-
+df
 
 #treine os dois modelos com a funcao lm() no conjunto de treino.
 #Dica: A formula é TCH~poly(Estagio,grau) onde grau é o grau do polinomio.
 #Devemos ter um modelo com grau a e outro com grau b
 modelo_grau_a = lm(TCH~poly(Estagio,1),data = train)
-modelo_grau_b = lm(TCH~poly(Estagio,3),data = train)
+modelo_grau_b = lm(TCH~poly(Estagio,5),data = train)
 summary(modelo_grau_a)
 modelo_grau_a$coefficients
 modelo_grau_b$coefficients
@@ -34,7 +37,7 @@ predicted_a <- predict(modelo_grau_a,train)
 predicted_b <- predict(modelo_grau_b,train)
 
 plot(df$Estagio,df$TCH)
-points(train$Estagio,predicted_a,col='green',lwd=3)
+lines(train$Estagio,predicted_a,col='green',lwd=3)
 points(train$Estagio,predicted_b,col='red',lwd=3)
 
 
@@ -56,13 +59,10 @@ mean(abs(pred_b - test$TCH))
 
 
 # OUTRO EXEMPLO -----------------------------------------------------------
-
 p = 0.5
 q = seq(0,100,1)
 y = p*q
 plot(q,y,type='l',col='red',main='Linear relationship')
-
-
 
 y = -450 + p*(q-10)^3
 plot(q,y,type='l',col='navy',main='Nonlinear relationship',lwd=3)
@@ -73,17 +73,16 @@ y = 500 + 0.4*(q-10)^3
 noise = rnorm(length(q), mean=10, sd=80)
 noisy.y = y + noise
 
-
 plot(q,noisy.y,col='blue',xlab='q',main='Observed data')
 lines(q,y,col='red',lwd=3)
 
 
-model = lm(noisy.y ~ poly(q,3))
+model3 = lm(noisy.y ~ poly(q,3))
 model1 = lm(noisy.y ~ q)
-summary(model)
 
-pred3 = predict(model)
+pred3 = predict(model3)
 pred1 = predict(model1)
 
 lines(q,pred1,col='green',lwd=3)
 lines(q,pred3,col='black',lwd=3)
+lines(q,y,col='red',lwd=3)
