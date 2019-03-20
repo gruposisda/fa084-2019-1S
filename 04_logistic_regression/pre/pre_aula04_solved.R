@@ -1,5 +1,5 @@
 ###### EXERCICIO 1 ######
-set.seed(123456)#use seu RA
+set.seed(118100)#use seu RA
 d = sample(1:6,6)
 
 #funcao para calcular p(x)
@@ -12,18 +12,22 @@ logistic_function = function(x,b0,b1){
 }
 
 
-B0_a = (d[3] + d[4])/10; B1_a = (d[5] + d[6])/10
+B0 = (d[3] + d[4])/10; B1 = (d[5] + d[6])/10
 px1 = logistic_function(x,B0,B1)
 plot(x,px1,type = 'l')
+print(c(B0,B1))
+
 
 B0 = (d[3]+ d[4])/10; B1 = - (d[5] + d[6])/10
 px2 = logistic_function(x,B0,B1)
-lines(x,px2)
+lines(x,px2,col='red')
+print(c(B0,B1))
+
 
 B0 = (d[3] + d[4] + d[1] + d[2])/10; B1 = (d[5] + d[6])/10
 px3 = logistic_function(x,B0,B1)
-lines(x,px3)
-
+lines(x,px3,col='green')
+print(c(B0,B1))
 
 ###### EXERCICIO 2 ######
 #Leia o modelo de predicao descrito no livro (secao 4.6.1)
