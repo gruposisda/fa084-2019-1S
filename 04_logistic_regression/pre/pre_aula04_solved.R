@@ -1,6 +1,6 @@
 ###### EXERCICIO 1 ######
 set.seed(118100)#use seu RA
-d = sample(1:6,6)
+d = sample(1:10,6)
 
 #funcao para calcular p(x)
 #Lembre do raciocinio da funcao "normalizar" da aula 03
@@ -11,7 +11,7 @@ logistic_function = function(x,b0,b1){
   logit = exp(b0+b1*x)/(1+exp(b0+b1*x))
 }
 
-
+x = -10:10
 B0 = (d[3] + d[4])/10; B1 = (d[5] + d[6])/10
 px1 = logistic_function(x,B0,B1)
 plot(x,px1,type = 'l')
@@ -34,7 +34,7 @@ print(c(B0,B1))
 seu_ra = 123456
 
 #1. Importe o arquivo
-df = read.csv('~/repos/fa084-2019-1S//04_logistic_regression/pre/fa084_dados_pre_aula4.csv')
+df = read.csv('~/repos/fa084-2019-1S/04_logistic_regression/pre/data/fa084_dados_pre_aula4.csv')
 
 #2. Divida em treino (75%) e teste (25%)
 test_rows = sample(nrow(df),0.25*nrow(df))
@@ -53,14 +53,16 @@ third_model
 #O comanto predict(), com type = 'response', retorna as probabilidades de ser TRUE.
 #Nos vamos considerar que se a probabilidae for maior que 0.5, sera um choveu
 #Assim, se usarmos vetor_de_predicoes > 0.5 temos TRUE quanto eh e false quando nao eh maior
-first_pred = predict(first_model,test,type='response')
+first_probs = predict(first_model,test,type='response')
+first_preds = first_probs > 0.5
 
 
 #5. Calcule a matriz de confusao para a predicao de cada modelo usando a funcao table
 #Os argumentos sao vetor_de_predicoes (com TRUE ou FALSE) e predicoes originais (test$choveu)
-first_conf_matrix =
+first_conf_matrix = table(first_preds,real =  test$chuva)
+first_conf_matrix
 second_conf_matrix =
 third_conf_matrix
 
 #6. Calcule as acuracias
-
+mean(first_preds)

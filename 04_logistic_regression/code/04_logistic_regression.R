@@ -1,5 +1,4 @@
 library(ggplot2)
-library(caret)
 
 na_per_column = function(df){
   apply(df,2,function(x){sum(is.na(x))})
@@ -147,12 +146,8 @@ probs = predict(lregmodel,mod_test,type = 'response')
 preds = as.numeric(probs >= 0.5)
 
 conf_matrix = table(preds,real)
-tp = conf_matrix[2,2]
-tn = conf_matrix[1,1]
-fp = conf_matrix[2,1]
-fn = conf_matrix[1,2]
-tpr = tp/(tp+fn)
-fpr = 1 - tpr
+tpr = sum(preds == 1 & real == 1)/sum(real == 1)
+fpr = sum(preds == 1 & real == 0)/sum(real == 0)
 
 threshold = seq(0,0.9,0.1)
 roc_data = data.frame(threshold,
@@ -167,9 +162,15 @@ for(i in 1:nrow(roc_data)){
   roc_data$tpr[i] = sum(preds == 1 & real == 1)/sum(real == 1)
   roc_data$fpr[i] = sum(preds == 1 & real == 0)/sum(real == 0)
 }
-plot(roc_data$fpr,roc_data$tpr,type='l')
+
+
+plot(roc_data$fpr,roc_data$tpr,
+     ylim = c(0,1),xlim = c(0,1),
+     col='steelblue',pch=19)
+abline(a = 0,b=1, 
+       col = 'darkred', lwd = '2',lty='dashed')
 
 ggplot(roc_data,aes(x=fpr,y=tpr)) + 
   geom_point(size=2,color = 'steelblue') +
   geom_abline(slope = 1,intercept = 0,color = 'darkred',size = 1,linetype='dashed') +
-  xlim(c(0,1)) + ylim(c(0,1)) + theme_bw()
+  xlim(c(0,1)) + ylim(c(0,1)) + theme_classic()
