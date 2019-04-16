@@ -3,7 +3,7 @@
 RA=123456
 library(dplyr)
 
-df = read.csv('~/repos/fa084/03_linear_regression/pre/data/fa084_cana_estagio.csv')
+df = read.csv('~/repos/fa084-2019-1S//03_linear_regression/pre/data/fa084_cana_estagio.csv')
 df = df %>% group_by(Estagio) %>% summarise(TCH = mean(TCH))
 df = group_by(df,Estagio)
 summarise(df,TCH=mean(TCH))
@@ -27,7 +27,7 @@ df
 #Dica: A formula é TCH~poly(Estagio,grau) onde grau é o grau do polinomio.
 #Devemos ter um modelo com grau a e outro com grau b
 modelo_grau_a = lm(TCH~poly(Estagio,1),data = train)
-modelo_grau_b = lm(TCH~poly(Estagio,5),data = train)
+modelo_grau_b = lm(TCH~poly(Estagio,3),data = train)
 summary(modelo_grau_a)
 modelo_grau_a$coefficients
 modelo_grau_b$coefficients
@@ -86,3 +86,4 @@ pred1 = predict(model1)
 lines(q,pred1,col='green',lwd=3)
 lines(q,pred3,col='black',lwd=3)
 lines(q,y,col='red',lwd=3)
+

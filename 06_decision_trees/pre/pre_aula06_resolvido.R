@@ -49,7 +49,7 @@ preds_based_on_pclass = ifelse(test$Pclass == 2, 0, 1)
 mean(preds_based_on_pclass == test$Survived)
 
 #4.Qual das duas colunas permite criarmos uma regra que mais diminui a entropia de survived?
-
+#Sex
 
 #Usando as informacoes da saida abaixo, crie uma regra com duas condicoes
 #Uma com base em "Sex" e outra com base em "Pclass".
@@ -62,34 +62,22 @@ preds_on_both = ifelse(test$Sex == 'male' & test$Pclass == 2,0,1)
 mean(preds_on_both == test$Survived)
 
 #Adicionar uma condicao a mais foi melhor ou pior para apredicao?
-
+#Pior
 
 
 
 #7.Usando apenas o atributo Age do conjunto de treino, qual o melhor 
 #corte para prever Survived = 1 no conjunto de teste: 16, 18 ou 22?
-age = 16
-mean(ifelse(train$Age < age, 1, 0) == train$Survived)
-mean(ifelse(test$Age < age, 1, 0) == test$Survived)
+ages = c(16,18,22)
+
+#Detalhe: Usamos apenas o treino nessa parte, usar o teste é errado.
+#16 é melhor
+for(age in ages){
+  acc_age = mean(ifelse(train$Age < age, 1, 0) == train$Survived)
+  print(paste0('acc for age ',age,' is ',acc_age))
+}
 
 
 #8.Para esta idade, qual a acuracia (no conjunto de treino e de teste)
 #da regra "Passageiros com idade menor do que (Idade) sobrevivem?"
-
-
-
-
-acc_train = numeric()
-for(age in 1:25){
-  acc_train_age = mean(as.numeric(train$Age < age) == train$Survived)
-  acc_train = c(acc_train,acc_train_age)
-}
-for(age in 1:25){
-  acc_train_age = mean(as.numeric(test$Age < age) == test$Survived)
-  acc_train = c(acc_train,acc_train_age)
-}
-
-names(acc_train) = rep(1:25,2)
-acc_train
-
-
+mean(ifelse(test$Age < 16, 1, 0) == test$Survived)

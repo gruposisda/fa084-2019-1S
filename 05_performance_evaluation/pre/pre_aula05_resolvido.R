@@ -1,5 +1,3 @@
-library(class)
-
 create_fold_index = function(nrows, folds){
 # cria um vetor com repeticao dos valores de 1 ate folds e repete isso 
 # um numero de vezes o numero de linhas dividido pelo numero de folds
@@ -19,12 +17,12 @@ fpr = function(preds, real){
   sum(preds == 1 & real == 0)/sum(real == 0)
 }
 
-df = read.csv('../data/mod_titanic.csv')
+df = read.csv('~/data/fa084/titanic/mod_titanic.csv')
 
 #remova a coluna PassengerId
 df = df %>% select(-PassengerId)
 
-seu_ra =  # Substitua aqui os digitos do seu RA
+seu_ra = 118100 # Substitua aqui os digitos do seu RA
 
 
 # a variavel fold_index e um indice para ser utilizado para
