@@ -59,23 +59,22 @@ test_label  = test$RainTomorrow
 #b)Use a função knn()  para criar dois vetores de predições para o conjunto 
 #de teste, um com k = 5 e outro com k = 10. (0,5) 
 
-preds_knn = knn(train = train_knn,
+preds_knn= knn(train = train_knn,
                 test = test_knn,
                 cl = train_label,k = 10)
 
-table(preds_knn,test_label)
-mean(preds_knn==test_label)
-tpr(test_label,preds_knn)
-fpr(test_label,preds_knn)
+acc_knn10 = mean(preds_knn==test_label)
+tpr_knn10 = tpr(test_label,preds_knn)
+fpr_knn10 = fpr(test_label,preds_knn)
 
 preds_knn = knn(train = train_knn,
                 test = test_knn,
                 cl = train_label,k = 5)
 
-table(preds_knn,test_label)
-acc_knn = mean(preds_knn==test_label)
-tpr_knn = tpr(test_label,preds_knn)
-fpr_knn = fpr(test_label,preds_knn)
+acc_knn5 = mean(preds_knn==test_label)
+tpr_knn5 = tpr(test_label,preds_knn)
+fpr_knn5 = fpr(test_label,preds_knn)
+
 
 # Crie um dataframe com os dados:  (1,0)
 # # k: número de vizinhos usados
@@ -83,6 +82,11 @@ fpr_knn = fpr(test_label,preds_knn)
 # # tpr:  taxa de verdadeiros positivos  para cada k
 # # fpr: taxa de falsos positivos para cada k
 # O dataframe terá 2 linhas e 4 colunas.
+knn_metrics = data.frame(k = c(10,5),
+                         acc = c(acc_knn10,acc_knn5),
+                         tpr = c(tpr_knn10,tpr_knn5),
+                         fpr = c(fpr_knn10,fpr_knn5))
+knn_metrics
 
 
 # Arvore de decisao com 5-fold CV e regressao logistica ----
@@ -154,7 +158,7 @@ fpr_tree = fpr(test_label,preds_tree)
 #fpr no conjunto de teste para este modelo? (0,5)
 logit_model = glm(RainTomorrow ~., train, family = 'binomial')
 coef(logit_model)
-preds_logit = as.numeric(predict(logit_model, test, type='response') > 0.5)
+preds_logit = as.numeric(predict(logit_model, test, type='response') > 0.6)
 
 
 table(preds_logit,test_label)
@@ -179,7 +183,7 @@ gbmGrid = expand.grid(interaction.depth = c(1, 5, 9),
 
 caret_boost = train(RainTomorrow~.,
                     data = train, method='gbm', 
-                    trControl = trainControl(method = 'cv',number =5),tuneGrid = gbmGrid)
+                    trControl = trainControl(method = 'cv',number =3),tuneGrid = gbmGrid)
 caret_boost
 preds_boost = predict(caret_boost,test)
 table(preds_boost,test_label)
