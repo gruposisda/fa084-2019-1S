@@ -1,7 +1,7 @@
 library(tidyverse)
 library(mlr)
 library(mlbench)
-library(neuralnet)
+library(nnet)
 library(e1071)
 
 normalize = function(col){
@@ -12,8 +12,6 @@ normalize = function(col){
 #install.packages("nome_do_pacote")
 
 #Carregue o conjunto de dados ele carrega sozinho ao carregar o pacote mlbench
-data(PimaIndiansDiabetes)
-df = PimaIndiansDiabetes
 set.seed(2019)
 df = read_csv('../data/cardio.csv')
 
@@ -50,7 +48,7 @@ glimpse(df)
 # Justifique brevemente o porquê.
 # Em seguida, normalize todas as colunas restantes para terem valores entre 0 e 1.
 normdf = df %>% select(-id)
-normdf = df %>% apply(.,2,normalize) %>% as.data.frame()
+normdf = normdf %>% apply(.,2,normalize) %>% as.data.frame()
 
 #B) Converta a coluna cardio para factor
 normdf = mutate(normdf,cardio=as.factor(cardio))
@@ -108,10 +106,9 @@ nn_learner = makeLearner('classif.nnet')
 params_svm = makeParamSet(makeNumericParam("cost",lower = 0.1,
                                            upper = 1),
                           makeNumericParam("gamma", lower = 0.1,
-                                           upper = 1))
+                                           upper = 2))
 
-params_nn = makeParamSet(makeIntegerParam("size",lower = 2,
-                                         upper = 5))
+params_nn = makeParamSet(makeIntegerParam('size',lower=2,upper=5))
 #D) Escolha um dos hiperparametros da SVM e explique seu significado
 
 #E) Defina o controle: RandomSearch com 50 iteracoes
@@ -149,6 +146,8 @@ preds_nn = predict(tuned_nn,tsk_test)
 #K) Preencha as matrizes de confusao de cada modelo. Use calculateConfusionMatrix()
 #nas predicoes acima.
 calculateConfusionMatrix(preds_svm)
+calculateConfusionMatrix(preds_nn)
+
 
 #Considere a premissa:
 #"e melhor dizer que o paciente tem doenca cardiaca e o mesmo nao ter do que 
@@ -169,14 +168,15 @@ svm_results = roc_svm$measures %>% unlist()
 #definidas acima. A saida deve ser igual ao arquivo compare_results.csv
 
 #Se conseguir construir no mesmo formato, salve o arquivo como compare_results_bonus 
-#e deixe o codigo abaixo. Para salvar, use write_csv(). 
+#e deixe o codigo abaixo. Para salvar, use write_csv().
+#Não há meio certo para o bonus, salvar o arquivo é parte do bonus.
 #Leia a documentacao da funcoes envolvidas, se necessario.
 compare_results = data.frame(nn_results,svm_results)
 colnames(compare_results) = c('nn','svm')
 compare_results = compare_results %>% rownames_to_column('measure') 
 
 #Questao 5: ggplot --------------------------------------------------------------
-#Independente de conseguir construir o dataframe, importe o arquivo compare_results.csv.
+#Independentemente de conseguir construir o dataframe, importe o arquivo compare_results.csv.
 #As medidas do arquivo nao necessariamente refletem as encontradas acima.
 #Use o compare_results como entrada do pipe abaixo para produzir o gráfico.
 
@@ -208,7 +208,7 @@ renamed_plot + coord_trans(y='sqrt')
 # Use seed 2019 antes do loop
 
 cluster_data = USArrests
-cluster_data
+cluster_data = as.data.frame(apply(cluster_data,2,normalize))
 # Use o comando abaixo para remover os row_names de cluster_data
 rownames(cluster_data) = NULL
 
@@ -223,9 +223,9 @@ for(k in k_to_test){
   wss = tr$learner.model$tot.withinss
   wssvec = c(wssvec,wss)
 }
-plot(k_to_test,wssvec,type='l')
+plot(k_to_test,wssvec)
 
-learner = makeLearner('cluster.kmeans',centers=3)
+learner = makeLearner('cluster.kmeans',centers=4)
 tr = train(learner,cluster_task)
 clusters =tr$learner.model$cluster
 
@@ -233,6 +233,21 @@ clusters =tr$learner.model$cluster
 #B) Crie uma coluna nova "clusters" em cluster_data, que recebe os clusters.
 cluster_data$clusters = clusters
 head(cluster_data)
+table(cluster_data$clusters)
 
-#C) Temos 3 novas observacoes arquivo find_cluster.csv. 
-# Use uma rotina concisa para predizer a qual cluster cada uma pertence.
+set.seed(2019)
+cluster_data = cluster_data %>% group_by(clusters) %>% summarise_all(mean) %>% sample_n(4)
+cluster_data
+cluster_data %>% 
+  select(-clusters) %>% write_csv('../data/find_cluster.csv')
+
+
+#C) Temos novas observacoes arquivo find_cluster.csv. 
+# Novos dados de crimes de regioes. 
+# Use uma rotina concisa para atribuir cada observacao a um cluster.
+find_cluster = read_csv('../data/find_cluster.csv')
+cl_learner = makeLearner('classif.svm')
+cl_task = makeClassifTask('cluster',cluster_data,target='clusters')
+
+cl_mod = train(cl_learner,cl_task)
+predict(cl_mod$learner.model,find_cluster) %>% unname()

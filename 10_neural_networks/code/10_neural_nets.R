@@ -35,7 +35,7 @@ olden(nn)
 
 # dividend info -----------------------------------------------------------
 setwd('~/repos/fa084-2019-1S/10_neural_networks/')
-df = read.csv('https://transfer.sh/pKW3B/dividend_info.csv')
+df = read.csv('../data/dividendinfo.csv')
 
 normalize = function(x) {
   return ((x - min(x)) / (max(x) - min(x)))
@@ -68,7 +68,8 @@ table(actual = results$actual,predicted = results$prediction)
 
 # using caret -------------------------------------------------------------
 # an old friend
-titanic_df = read_csv('https://transfer.sh/6xede/mod_titanic.csv') %>% select(-PassengerId)
+library(tidyverse)
+titanic_df = read_csv('../data/mod_titanic.csv') %>% select(-PassengerId)
 head(titanic_df)
 
 normdf = as.data.frame(lapply(titanic_df, normalize))
