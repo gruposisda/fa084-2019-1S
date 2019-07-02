@@ -25,7 +25,7 @@ class Blobs:
         self.df.to_csv(filepath+self.id+'_data.csv',index=False)
         self.labels.to_csv(filepath+self.id+'_labels.csv',index=False)
 
-Blobs(id = 'first',n_centers=5,std=2,random_state=10).plot_self()
+Blobs(id = 'first',n_centers=6,std=2,random_state=22).plot_self()
 Blobs(id = 'first',n_centers=5,std=2,random_state=10).write('./data/')
 Blobs(id = 'second',n_centers=5,std=5,random_state=10).write('./data/')
 Blobs(id = 'third',n_centers=5,std=7,random_state=10).write('./data/')
